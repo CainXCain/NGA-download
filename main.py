@@ -7,7 +7,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-driver.get("https://nga.178.com/read.php?tid=34604766&page=10")
+
+def driver_get(url):
+    driver.get(url)
+    while driver.title=='访客不能直接访问':
+        time.sleep(0.1)
+
+driver_get("https://nga.178.com/read.php?tid=34604766&page=10")
 
 
 while driver.title=='访客不能直接访问':
