@@ -6,7 +6,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 import time
 
-url='https://nga.178.com/read.php?tid=34009511&authorid=61358733&page=4'
+url='https://nga.178.com/read.php?tid=34713949'
+#remove 'page= ' in url
 url=url.split('&')
 for i in url:
     if i.find('page')!=-1:
@@ -16,48 +17,52 @@ url='&'.join(url)
 
 driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
+def skip_ads():#should use when opening any url
+    if driver.title=='欢迎访问NGA玩家社区':
+        skip=driver.find_element(by=By.ID,value='jump2')
+        skip=skip.find_element(by=By.TAG_NAME,value='a')
+        while True:
+            try:
+                skip.click()
+                break
+            except:
+                time.sleep(0.1)
 def driver_get(url):
-    # driver.get(url)
+    driver.get(url)
     while driver.title=='访客不能直接访问':
         time.sleep(0.1)
+    skip_ads()
 
 driver_get(url)
-
-page_l=1
-page_r=2
-
-def page_exist(page):
-    driver.get(url+'&page='+(str)(page))
-    print(driver.title)
-    elements=driver.find_elements(By.CLASS_NAME,value='uitxt1')
-    for e in elements:
-        if e.text=='后页':
-            return True
-    return False
-
-while page_exist(page_r):
-    page_r*=2
-while page_l<page_r:
-    mid=(page_l+page_r)//2
-    if(page_exist(mid)):
-        page_l=mid
-    else:
-        page_r=mid-1
-pages=page_l
-
-while driver.title=='访客不能直接访问':
-    time.sleep(0.1)
-
 title=driver.title.strip(' 178')
 
-# click all '+' button
-show_content_buttons=driver.find_elements(by=By.NAME,value='collapseSwitchButton')
-for button in show_content_buttons:
-    button.click()
+#find out how many pages in this post
+elements=driver.find_elements(By.CLASS_NAME,value='uitxt1')
+flag=0
+for e in elements:
+    if e.text=='末页':
+        flag=1
+        e.click()
+        skip_ads()
+        elements=driver.find_elements(By.CLASS_NAME,value='uitxt1')
+        break
+pages=1
+for e in elements:
+    text=e.text[:-2+flag].strip()#last page id has special characters
+    if text.isdigit():
+        pages=max(pages,(int)(text)+flag)
+#download
+for i in range(1,pages+1):
+    driver_get(url+'&page='+(str)(i))
 
-res = driver.execute_cdp_cmd('Page.captureSnapshot', {})
+    # click all '+' button
+    show_content_buttons=driver.find_elements(by=By.NAME,value='collapseSwitchButton')
+    for button in show_content_buttons:
+        button.click()
 
-with open(title+'.mhtml', 'w', newline='') as f:
-    f.write(res['data'])
+    res = driver.execute_cdp_cmd('Page.captureSnapshot', {})
+
+    with open(title+(str)(i)+'.mhtml', 'w', newline='') as f:
+        f.write(res['data'])
 
 driver.quit()
