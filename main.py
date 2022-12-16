@@ -13,6 +13,8 @@ driver.get("https://nga.178.com/read.php?tid=34604766&page=10")
 while driver.title=='访客不能直接访问':
     time.sleep(0.1)
 
+title=driver.title.strip(' 178')
+
 # click all '+' button
 show_content_buttons=driver.find_elements(by=By.NAME,value='collapseSwitchButton')
 for button in show_content_buttons:
@@ -20,7 +22,7 @@ for button in show_content_buttons:
 
 res = driver.execute_cdp_cmd('Page.captureSnapshot', {})
 
-with open('1.mhtml', 'w', newline='') as f:
+with open(title+'.mhtml', 'w', newline='') as f:
     f.write(res['data'])
 
 driver.quit()
