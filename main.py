@@ -6,15 +6,44 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 import time
 
+url='https://nga.178.com/read.php?tid=34009511&authorid=61358733&page=4'
+url=url.split('&')
+for i in url:
+    if i.find('page')!=-1:
+        url.remove(i)
+        break
+url='&'.join(url)
+
 driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
 def driver_get(url):
-    driver.get(url)
+    # driver.get(url)
     while driver.title=='访客不能直接访问':
         time.sleep(0.1)
 
-driver_get("https://nga.178.com/read.php?tid=34604766&page=10")
+driver_get(url)
 
+page_l=1
+page_r=2
+
+def page_exist(page):
+    driver.get(url+'&page='+(str)(page))
+    print(driver.title)
+    elements=driver.find_elements(By.CLASS_NAME,value='uitxt1')
+    for e in elements:
+        if e.text=='后页':
+            return True
+    return False
+
+while page_exist(page_r):
+    page_r*=2
+while page_l<page_r:
+    mid=(page_l+page_r)//2
+    if(page_exist(mid)):
+        page_l=mid
+    else:
+        page_r=mid-1
+pages=page_l
 
 while driver.title=='访客不能直接访问':
     time.sleep(0.1)
