@@ -6,6 +6,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 
 import time
+import os
+
+path=os.path.dirname(os.path.abspath(__file__))
 
 url='https://nga.178.com/read.php?tid=31942204'
 #remove 'page= ' in url
@@ -36,6 +39,8 @@ def driver_get(url):
 
 driver_get(url)
 title=driver.title.strip(' 178')
+path=os.path.join(path,title)
+os.makedirs(path)
 
 #find out how many pages in this post
 elements=driver.find_elements(By.CLASS_NAME,value='uitxt1')
@@ -80,7 +85,7 @@ for i in range(1,pages+1):
 
     res = driver.execute_cdp_cmd('Page.captureSnapshot', {})
 
-    with open(title+(str)(i)+'.mhtml', 'w', newline='') as f:
+    with open(os.path.join(path,(str)(i)+'.mhtml'), 'w', newline='') as f:
         f.write(res['data'])
 
 driver.quit()
