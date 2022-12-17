@@ -3,10 +3,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
 
 import time
 
-url='https://nga.178.com/read.php?tid=34713949'
+url='https://nga.178.com/read.php?tid=31942204'
 #remove 'page= ' in url
 url=url.split('&')
 for i in url:
@@ -59,6 +60,17 @@ for i in range(1,pages+1):
     show_content_buttons=driver.find_elements(by=By.NAME,value='collapseSwitchButton')
     for button in show_content_buttons:
         button.click()
+    
+    #srcoll to images not loaded and wait until the last one is loaded
+    imgs=driver.find_elements(by=By.TAG_NAME,value='img')
+    last_img=imgs[0]
+    for img in imgs:
+        if img.get_attribute('src')=='about:blank' and img.get_attribute('style')!='display: none;':
+            ActionChains(driver)\
+                .scroll_to_element(img)\
+                .perform()
+            last_img=img
+    WebDriverWait(driver,timeout=5).until(lambda d:last_img.get_attribute('src')!='about:blank')
 
     res = driver.execute_cdp_cmd('Page.captureSnapshot', {})
 
