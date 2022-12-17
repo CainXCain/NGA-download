@@ -40,7 +40,7 @@ def driver_get(url):
 driver_get(url)
 title=driver.title.strip(' 178')
 path=os.path.join(path,title)
-os.makedirs(path)
+os.makedirs(path,exist_ok=True)
 
 #find out how many pages in this post
 elements=driver.find_elements(By.CLASS_NAME,value='uitxt1')
@@ -57,8 +57,13 @@ for e in elements:
     text=e.text[:-2+flag].strip()#last page id has special characters
     if text.isdigit():
         pages=max(pages,(int)(text)+flag)
+
+#edit here
+start=1
+end=pages
+
 #download
-for i in range(1,pages+1):
+for i in range(start,end+1):
     driver_get(url+'&page='+(str)(i))
 
     # click all '+' button
@@ -74,14 +79,18 @@ for i in range(1,pages+1):
 
     #srcoll to images not loaded and wait until the last one is loaded
     imgs=driver.find_elements(by=By.TAG_NAME,value='img')
-    last_img=imgs[0]
+    last_img=0
     for img in imgs:
         if img.get_attribute('src')=='about:blank' and img.get_attribute('style')!='display: none;':
             ActionChains(driver)\
                 .scroll_to_element(img)\
                 .perform()
             last_img=img
-    WebDriverWait(driver,timeout=5).until(lambda d:last_img.get_attribute('src')!='about:blank')
+    if last_img!=0:
+        try:
+            WebDriverWait(driver,timeout=5).until(lambda d:last_img.get_attribute('src')!='about:blank')
+        except:
+            last_img=last_img
 
     res = driver.execute_cdp_cmd('Page.captureSnapshot', {})
 
