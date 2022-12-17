@@ -61,6 +61,12 @@ for i in range(1,pages+1):
     for button in show_content_buttons:
         button.click()
     
+    # click '显示图片' in replies
+    show_img_buttons=driver.find_elements(by=By.TAG_NAME,value='button')
+    for button in show_img_buttons:
+        if button.text=='显示图片':
+            button.click()
+
     #srcoll to images not loaded and wait until the last one is loaded
     imgs=driver.find_elements(by=By.TAG_NAME,value='img')
     last_img=imgs[0]
