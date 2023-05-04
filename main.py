@@ -10,7 +10,7 @@ import os
 
 path=os.path.dirname(os.path.abspath(__file__))
 
-url='https://nga.178.com/read.php?tid=31942204'
+url='https://nga.178.com/read.php?tid=35309665&_ff=806&page=18'
 #remove 'page= ' in url
 url=url.split('&')
 for i in url:
@@ -31,6 +31,7 @@ def skip_ads():#should use when opening any url
                 break
             except:
                 time.sleep(0.1)
+
 def driver_get(url):
     driver.get(url)
     while driver.title=='访客不能直接访问':
@@ -65,6 +66,12 @@ end=pages
 #download
 for i in range(start,end+1):
     driver_get(url+'&page='+(str)(i))
+
+    # close '界面设置'
+    settings=driver.find_elements(by=By.CLASS_NAME,value='single_ttip2')
+    if len(settings)!=0:
+        clost_button=settings[0].find_element(by=By.CLASS_NAME,value='colored_text_btn')
+        clost_button.click()
 
     # click all '+' button
     show_content_buttons=driver.find_elements(by=By.NAME,value='collapseSwitchButton')
